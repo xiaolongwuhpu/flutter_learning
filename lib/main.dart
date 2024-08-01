@@ -1,6 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_learning/paint/FillWidgetPage.dart';
 import 'package:flutter_learning/slider/SliderPage.dart';
+
+import 'image/ImageCropper.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,24 +36,26 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+          backgroundColor: Colors.white,
           body: SafeArea(
               child: CustomScrollView(
-        slivers: [
-          _buildTextButton(context, "Slider Test", onPressed: () {
-            _openSliderPage();
-          }),
-        ],
-      ))),
+            slivers: [
+              _buildTextButton(context, "Slider Test", onPressed: () {
+                _pushPage(const SliderPage());
+              }),
+              _buildTextButton(context, "图片剪切", onPressed: () {
+                _pushPage(const ImageCropper());
+              }),
+              _buildTextButton(context, "图片填色", onPressed: () {
+                _pushPage(const FillWidgetPage());
+              }),
+            ],
+          ))),
     );
   }
 
-  void _openSliderPage() {
-    Navigator.push<void>(
-      context,
-      CupertinoPageRoute<void>(
-        builder: (BuildContext context) => const SliderPage(),
-      ),
-    );
+  _pushPage(Widget page) {
+    Navigator.push(context, CupertinoPageRoute(builder: (context) => page));
   }
 
   SliverToBoxAdapter _buildTextButton(BuildContext context, String text, {Function()? onPressed}) {
