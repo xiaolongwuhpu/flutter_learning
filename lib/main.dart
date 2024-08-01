@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_learning/paint/FillWidgetPage.dart';
+import 'package:flutter_learning/sketch/sketch_image.dart';
 import 'package:flutter_learning/slider/SliderPage.dart';
 
 import 'image/ImageCropper.dart';
@@ -48,6 +49,9 @@ class _MainPageState extends State<MainPage> {
               }),
               _buildTextButton(context, "图片填色", onPressed: () {
                 _pushPage(const FillWidgetPage());
+              }),
+              _buildTextButton(context, "图片转线条", onPressed: () {
+                _pushPage( SketchImageScreen());
               }),
             ],
           ))),

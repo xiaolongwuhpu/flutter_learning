@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-
-import 'FillWidget.dart';
+import 'SVGParser.dart';
+import 'SVGViewer.dart';
 
 class FillWidgetPage extends StatefulWidget {
   const FillWidgetPage({super.key});
@@ -12,33 +10,45 @@ class FillWidgetPage extends StatefulWidget {
 }
 
 class _FillWidgetPageState extends State<FillWidgetPage> {
+  SVGParser? _parser;
+  final String assetName = 'assets/images/frog.svg';
 
-
+  @override
+  void initState() {
+    super.initState();
+    _parser = SVGParser();
+    _parser?.load(assetName).then((_) {
+      Future.delayed(Duration.zero, () {
+        setState(() {});
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    const String assetName = 'assets/images/girl.svg';
-    final Widget svg = SizedBox(
-      height: 300,
-      width: 300,
-      child: SvgPicture.asset(
-          assetName,
-          semanticsLabel: 'Acme Logo'
-      ),
-    );
+    if (_parser == null) {
+      return const Center(
+        child: SizedBox(height: 60, width: 60, child: CircularProgressIndicator()),
+      );
+    }
+    // final Widget svg = SizedBox(
+    //   height: 300,
+    //   width: 300,
+    //   child: SvgPicture.asset(
+    //       assetName,
+    //       semanticsLabel: 'Acme Logo'
+    //   ),
+    // );
 
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(title: const Text('Path Fill Animation')),
         body: Container(
-          child: SizedBox(
-            width: 573,
-            height: 789,
-            child: const FillWidget(
-              assetName: assetName, // Your SVG file path
-              size: Size(573, 789), // Size of your SVG
-            ),
+          alignment: Alignment.center,
+          child: SVGViewer(
+            parser: _parser!, // Your SVG file path
+            size: Size(_parser!.svgWidth, _parser!.svgHeight), // Size of your SVG
           ),
         ),
       ),

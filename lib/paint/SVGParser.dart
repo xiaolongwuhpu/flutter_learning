@@ -7,6 +7,8 @@ class SVGParser {
   final List<Path> draws = [];
   List<Color> colors = [];
   List<Color> actualColors = [];
+  var svgWidth = 360.0;
+  var svgHeight = 360.0;
 
   Future<void> load(String assetName) async {
     draws.clear();
@@ -16,6 +18,11 @@ class SVGParser {
     final document = XmlDocument.parse(svg);
     final svgRoot = document.rootElement;
     Iterable<XmlElement> pathNodes = svgRoot.findAllElements('path');
+    if (svgRoot.getAttribute('width') != null && svgRoot.getAttribute('height') != null) {
+      svgWidth = double.parse(svgRoot.getAttribute('width')!);
+      svgHeight = double.parse(svgRoot.getAttribute('height')!);
+    }
+
     List<XmlElement> pathNodesList = pathNodes.toList();
     RegExp colorRegex = RegExp(r"#\w{6}");
     for (int i = 0; i < pathNodesList.length; i++) {
@@ -29,10 +36,10 @@ class SVGParser {
     _checkColors();
   }
 
-   _checkColors(){
+  _checkColors() {
     if (colors.isNotEmpty) return;
-    colors =  List.generate(draws.length, (index) => Colors.blueAccent.withOpacity(0.1));
-    actualColors =  List.generate(draws.length, (index) => Colors.green);
+    colors = List.generate(draws.length, (index) => Colors.blueAccent.withOpacity(0.1));
+    actualColors = List.generate(draws.length, (index) => Colors.green);
   }
 
   void assemblyColor(RegExp colorRegex, String? style) {
@@ -41,15 +48,36 @@ class SVGParser {
       if (colorMatch != null) {
         final colorString = colorMatch.group(0);
         final color = colorString != null ? Color(int.parse(colorString!.substring(1), radix: 16) | 0xFF000000) : Colors.black;
-        colors.add(color.withOpacity(0.1));
+        colors.add(color.withOpacity(0.0));
         actualColors.add(color);
-      }else {
+      } else {
         final colorString = convertRgbToHex(extractFillColor(style));
         final color = colorString != null ? Color(int.parse(colorString!.substring(1), radix: 16) | 0xFF000000) : Colors.black;
-        colors.add(color.withOpacity(0.1));
+        if (colorString == null) return;
+        var grayFromHex = getGrayFromHex(colorString);
+        colors.add(grayToColor(grayFromHex).withAlpha(100));
         actualColors.add(color);
       }
     }
+  }
+
+  int getGrayFromHex(String hexColor) {
+    Color color = hexToColor(hexColor);
+    int r = color.red;
+    int g = color.green;
+    int b = color.blue;
+
+    // 计算灰度值
+    int gray = (r * 299 + g * 587 + b * 114) ~/ 1000;
+    return gray;
+  }
+
+  Color hexToColor(String code) {
+    return Color(int.parse(code.substring(1, 7), radix: 16));
+  }
+
+  Color grayToColor(int gray) {
+    return Color.fromARGB(255, gray, gray, gray);
   }
 
   String? extractFillColor(String input) {
